@@ -1,5 +1,5 @@
 {
-  description = "Work scripts for productivity and automation";
+  description = "Personal scripts for productivity and automation";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -80,17 +80,17 @@
       homeManagerModules.default = { config, lib, pkgs, ... }:
         with lib;
         {
-          options.programs.work-scripts = {
-            enable = mkEnableOption "work scripts";
+          options.programs.ttw-scripts = {
+            enable = mkEnableOption "personal scripts";
             vaultPath = mkOption {
               type = types.str;
               description = "Path to zettelkasten vault";
             };
           };
 
-          config = mkIf config.programs.work-scripts.enable {
+          config = mkIf config.programs.ttw-scripts.enable {
             home.packages = builtins.attrValues self.packages.${pkgs.system};
-            home.sessionVariables.ZK_VAULT = config.programs.work-scripts.vaultPath;
+            home.sessionVariables.ZK_VAULT = config.programs.ttw-scripts.vaultPath;
           };
         };
     };

@@ -1,6 +1,6 @@
-# Work Scripts - Zettelkasten & Utilities
+# Personal Scripts - Zettelkasten & Utilities
 
-A Nix flake-based project for shell scripts useful for work
+A Nix flake-based project for shell scripts useful for me
 
 ## Installation
 
@@ -20,24 +20,48 @@ nix build
 Add to your home-manager flake inputs:
 
 ```nix
-inputs.work-scripts.url = "path:/home/torsneyw/projects/work_scripts";
+inputs.ttw-scripts.url = "path:/home/torsneyw/projects/ttw_scripts";
 ```
 
 Then in your home-manager configuration:
 
 ```nix
-home.packages = builtins.attrValues inputs.work-scripts.packages.${pkgs.system};
+imports = [
+  inputs.ttw-scripts.homeManagerModules.default
+];
+
+programs.work-scripts = {
+  enable = true;
+  vaultPath = "/home/username/Documents/Notes";
+};
 ```
 
-Run `home-manager switch` to install all scripts.
+With default vault path:
+
+```nix
+programs.work-scripts.enable = true;
+```
+
+This will install all scripts and set the `ZK_VAULT` environment variable.
 
 ## Usage
 
 ### Create a New Meeting Note
 
+With home-manager module (vault path is set automatically):
+
+```bash
+meeting_note "Team Standup"
+```
+
+Manual usage:
+
 ```bash
 # With arguments
 ./bin/meeting_note.sh "Team Standup" ~/Documents/Notes
+
+# Using environment variable
+ZK_VAULT=~/Documents/Notes meeting_note "Team Standup"
 
 # Using Nix
 nix run .#meeting_note -- "Team Standup" ~/Documents/Notes
