@@ -54,11 +54,9 @@ CONTENT=$(cat "$TEMPLATE_FILE")
 CONTENT="${CONTENT//\{\{title\}\}/$TITLE}"
 CONTENT="${CONTENT//\{\{date\}\}/$(date '+%Y-%m-%d')}"
 CONTENT="${CONTENT//\{\{time24\}\}/$(date '+%H:%M')}"
-log "Using template: $TEMPLATE_FILE"
 
 # Write the note
 echo "$CONTENT" > "$FILEPATH"
-log "Created meeting note: $FILEPATH"
 
 # Output the filepath so it can be used in scripts
 echo "$FILEPATH"
