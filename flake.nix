@@ -76,5 +76,22 @@
           scripts
         )
       );
+
+      homeManagerModules.default = { config, lib, pkgs, ... }:
+        with lib;
+        {
+          options.programs.work-scripts = {
+            enable = mkEnableOption "work scripts";
+            vaultPath = mkOption {
+              type = types.str;
+              description = "Path to zettelkasten vault";
+            };
+          };
+
+          config = mkIf config.programs.work-scripts.enable {
+            home.packages = builtins.attrValues self.packages.${pkgs.system};
+            home.sessionVariables.ZK_VAULT = config.programs.work-scripts.vaultPath;
+          };
+        };
     };
 }

@@ -7,8 +7,8 @@ set -euo pipefail
 
 # Configuration
 TITLE="${1:-}"
-VAULT_PATH="${2:-.}"
-TEMPLATE_FILE="${HOME}/Documents/Notes/templates/meeting_note.md"
+VAULT_PATH="${2:-${ZK_VAULT:-.}}"
+TEMPLATE_FILE="${VAULT_PATH}/templates/meeting_note.md"
 
 # Helper functions
 log() {
