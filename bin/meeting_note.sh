@@ -58,11 +58,11 @@ CONTENT="${CONTENT//\{\{time24\}\}/$(date '+%H:%M')}"
 # Write the note
 echo "$CONTENT" > "$FILEPATH"
 
-# Detect if running directly in terminal or in subshell
-if [[ $SHLVL -eq 1 ]] && [[ -t 0 ]]; then
-    # Direct terminal: open file in vim
-    vim "$FILEPATH"
+# Check if stdout is connected to a terminal
+if [[ -t 1 ]]; then
+    # Terminal: open file in vim
+    "$EDITOR" "$FILEPATH"
 else
-    # Subshell or non-interactive: output the filepath
+    # Not a terminal (subshell/command substitution): output the filepath
     echo "$FILEPATH"
 fi
