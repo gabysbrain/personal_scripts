@@ -1,40 +1,80 @@
 {
-  description = "A Nix-flake-based Shell development environment";
+  description = "Work scripts for productivity and automation";
 
-  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # unstable Nixpkgs
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  };
 
-  outputs =
-    { self, ... }@inputs:
-
+  outputs = { self, nixpkgs }:
     let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "aarch64-darwin"
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
+      forAllSystems = f: builtins.listToAttrs (map (system: { name = system; value = f system; }) systems);
+      
+      # List of scripts (add new scripts here without .sh extension)
+      scripts = [
+        "meeting_note"
       ];
-      forEachSupportedSystem =
-        f:
-        inputs.nixpkgs.lib.genAttrs supportedSystems (
-          system:
-          f {
-            inherit system;
-            pkgs = import inputs.nixpkgs { inherit system; };
-          }
+      
+      # Create a package for a script
+      mkScriptPackage = pkgs: scriptName:
+        pkgs.stdenv.mkDerivation {
+          name = scriptName;
+          src = ./bin;
+          buildInputs = with pkgs; [ bash coreutils ];
+          installPhase = ''
+            mkdir -p $out/bin
+            cp ${scriptName}.sh $out/bin/${scriptName}
+            chmod +x $out/bin/${scriptName}
+          '';
+        };
+      
+      # Generate all packages for a system
+      mkPackages = pkgs:
+        builtins.listToAttrs (map
+          (name: {
+            inherit name;
+            value = mkScriptPackage pkgs name;
+          })
+          scripts
         );
     in
     {
-      devShells = forEachSupportedSystem (
-        { pkgs, system }:
+      packages = forAllSystems (system:
+        mkPackages nixpkgs.legacyPackages.${system}
+      );
+
+      devShells = forAllSystems (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         {
-          default = pkgs.mkShellNoCC {
-            packages = with pkgs; [
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              bash
+              coreutils
+              gawk
+              fzf
               shellcheck
-              self.formatter.${system}
             ];
           };
         }
       );
 
-      formatter = forEachSupportedSystem ({ pkgs, ... }: pkgs.nixfmt);
+      apps = forAllSystems (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          packages = mkPackages pkgs;
+        in
+        builtins.listToAttrs (map
+          (name: {
+            inherit name;
+            value = {
+              type = "app";
+              program = "${packages.${name}}/bin/${name}";
+            };
+          })
+          scripts
+        )
+      );
     };
 }
