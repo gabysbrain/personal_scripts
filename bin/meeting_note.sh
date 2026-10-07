@@ -36,7 +36,7 @@ NOTE_ID=$(date +%Y%m%d%H%M%S)
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-+/-/g' | sed 's/^-\|-$//')
 
 # Full filename
-FILENAME="${NOTE_ID}-${SLUG}.md"
+FILENAME="${SLUG}-${NOTE_ID}.md"
 FILEPATH="${VAULT_PATH}/${FILENAME}"
 
 # Check if file already exists
